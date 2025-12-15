@@ -1,0 +1,35 @@
+@page "/"
+
+<PageTitle>Vendor Management System</PageTitle>
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Vendor Management System</div>
+        <div class="page-subtitle">Radzen Material for .NET 10 Proof of Concept</div>
+    </div>
+    <div class="actions">
+        <RadzenButton Text="Start Registration" Icon="add_circle" ButtonStyle="ButtonStyle.Primary" Click="@(() => NavManager.NavigateTo("/vendor-master/new"))" />
+        <RadzenButton Text="View Directory" Icon="fact_check" ButtonStyle="ButtonStyle.Secondary" Click="@(() => NavManager.NavigateTo("/vendor-master"))" />
+    </div>
+</div>
+
+<div class="two-column">
+    <RadzenCard class="card-panel">
+        <div class="section-title">What is inside</div>
+        <div class="section-caption">New vendor registration, modify vendor data, and check existing vendors using Radzen components styled with the Material dark theme.</div>
+        <div class="pill"><strong>Data</strong> In-memory sample vendors with status chips</div>
+        <div class="pill"><strong>UI</strong> Material dark palette tuned for reference mockups</div>
+    </RadzenCard>
+
+    <RadzenCard class="card-panel">
+        <div class="section-title">Quick actions</div>
+        <div class="card-inline-actions">
+            <RadzenButton Text="Register new vendor" Icon="app_registration" ButtonStyle="ButtonStyle.Primary" Click="@(() => NavManager.NavigateTo("/vendor-master/new"))" />
+            <RadzenButton Text="Modify vendor" Icon="edit_note" ButtonStyle="ButtonStyle.Secondary" Click="@(() => NavManager.NavigateTo("/vendor-master/modify"))" />
+        </div>
+    </RadzenCard>
+</div>
+
+@code {
+    [Inject] private NavigationManager NavManager { get; set; } = default!;
+}

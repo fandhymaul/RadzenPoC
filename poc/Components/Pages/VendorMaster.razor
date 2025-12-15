@@ -1,0 +1,81 @@
+@page "/vendor-master"
+@using poc.Models
+@using poc.Services
+@using Radzen
+@using Radzen.Blazor
+
+@inject VendorService VendorSvc
+@inject NavigationManager NavManager
+
+<PageTitle>Check Existing Vendors</PageTitle>
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Check Existing Vendors</div>
+        <div class="page-subtitle">View and search all registered vendors</div>
+    </div>
+    <div class="actions">
+        <RadzenButton Icon="add" Text="New Vendor" ButtonStyle="ButtonStyle.Primary" Click="@(() => NavManager.NavigateTo("/vendor-master/new"))" />
+    </div>
+</div>
+
+<RadzenCard class="card-panel">
+    <div class="section-title">Vendor Directory</div>
+    <div class="section-caption">Browse all vendors in the system</div>
+
+    <div class="two-column" style="align-items:center; margin-bottom:0.75rem;">
+        <div class="search-box">
+            <RadzenIcon Icon="search" class="search-icon" />
+            <RadzenTextBox Placeholder="Search by vendor name, code, or business type..." Style="width:100%;" @bind-Value="searchText" />
+        </div>
+        <div style="text-align:right;">
+            <RadzenButton Text="Reset" ButtonStyle="ButtonStyle.Secondary" Icon="refresh" Click="@ResetSearch" />
+        </div>
+    </div>
+
+    <RadzenDataGrid Data="@FilteredVendors" TItem="Vendor" AllowPaging="true" PageSize="5" AllowSorting="true" AllowFiltering="false" ShowPagingSummary="true" Responsive="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="Vendor" Property="VendorCode" Title="Vendor Code" />
+            <RadzenDataGridColumn TItem="Vendor" Property="Name" Title="Vendor Name" />
+            <RadzenDataGridColumn TItem="Vendor" Property="BusinessType" Title="Business Type" />
+            <RadzenDataGridColumn TItem="Vendor" Property="Country" Title="Country" Width="150px" />
+            <RadzenDataGridColumn TItem="Vendor" Property="Status" Title="Status" Width="120px">
+                <Template Context="vendor">
+                    <span class="@GetStatusChipClass(vendor.Status)">@vendor.Status</span>
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="Vendor" Title="Actions" Width="110px">
+                <Template Context="vendor">
+                    <div class="table-actions">
+                        <RadzenButton Icon="visibility" Variant="Variant.Flat" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Small" Click="@(() => GoToDetails(vendor))" />
+                    </div>
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>
+    </RadzenDataGrid>
+</RadzenCard>
+
+@code {
+    private string searchText = string.Empty;
+    private IEnumerable<Vendor> FilteredVendors => VendorSvc.Search(searchText).OrderBy(v => v.VendorCode);
+
+    private void GoToDetails(Vendor vendor)
+    {
+        NavManager.NavigateTo($"/vendor-master/{vendor.Id}");
+    }
+
+    private void ResetSearch()
+    {
+        searchText = string.Empty;
+    }
+
+    private string GetStatusChipClass(string status)
+    {
+        return status?.ToLowerInvariant() switch
+        {
+            "active" => "chip success",
+            "inactive" => "chip danger",
+            _ => "chip warning"
+        };
+    }
+}

@@ -1,0 +1,135 @@
+@page "/vendor-master/new"
+@using poc.Models
+@using poc.Services
+@using Radzen
+@using Radzen.Blazor
+
+@inject VendorService VendorSvc
+@inject NavigationManager NavManager
+@inject NotificationService NotificationService
+
+<PageTitle>New Vendor Registration</PageTitle>
+
+<div class="page-header">
+    <div>
+        <div class="page-title">New Vendor Registration</div>
+        <div class="page-subtitle">Register a new vendor in the system</div>
+    </div>
+    <div class="actions">
+        <RadzenButton Text="Back to Directory" Icon="arrow_back" ButtonStyle="ButtonStyle.Secondary" Click="@(() => NavManager.NavigateTo("/vendor-master"))" />
+    </div>
+</div>
+
+<RadzenTemplateForm TItem="Vendor" Data="@newVendor" Submit="@HandleSubmit">
+    <RadzenCard class="card-panel">
+        <div class="section-title">Basic Information</div>
+        <div class="section-caption">Enter the vendor's basic details</div>
+        <div class="form-grid">
+            <div>
+                <RadzenTextBox @bind-Value="newVendor.Name" Name="Name" Placeholder="Vendor Name" Style="width:100%;" />
+                <RadzenRequiredValidator Component="Name" Text="Vendor name is required" />
+            </div>
+            <div>
+                <RadzenDropDown Data="@businessTypes" @bind-Value="newVendor.BusinessType" Name="BusinessType" Placeholder="Select business type" Style="width:100%;" />
+                <RadzenRequiredValidator Component="BusinessType" Text="Business type is required" />
+            </div>
+            <div>
+                <RadzenTextBox @bind-Value="newVendor.TaxId" Name="TaxId" Placeholder="Tax ID" Style="width:100%;" />
+            </div>
+            <div>
+                <RadzenDatePicker @bind-Value="newVendor.RegistrationDate" Name="RegistrationDate" Style="width:100%;" />
+            </div>
+        </div>
+    </RadzenCard>
+
+    <RadzenCard class="card-panel">
+        <div class="section-title">Contact Information</div>
+        <div class="section-caption">Enter contact details for the vendor</div>
+        <div class="form-grid">
+            <div>
+                <RadzenTextBox @bind-Value="newVendor.Email" Name="Email" Placeholder="Email" Style="width:100%;" />
+                <RadzenEmailValidator Component="Email" Text="Provide a valid email" />
+            </div>
+            <div>
+                <RadzenTextBox @bind-Value="newVendor.PhoneNumber" Name="PhoneNumber" Placeholder="Phone" Style="width:100%;" />
+            </div>
+            <div style="grid-column: 1 / -1;">
+                <RadzenTextBox @bind-Value="newVendor.Address" Name="Address" Placeholder="Address" Style="width:100%;" />
+                <RadzenRequiredValidator Component="Address" Text="Address is required" />
+            </div>
+            <RadzenTextBox @bind-Value="newVendor.City" Name="City" Placeholder="City" Style="width:100%;" />
+            <RadzenTextBox @bind-Value="newVendor.Country" Name="Country" Placeholder="Country" Style="width:100%;" />
+            <RadzenTextBox @bind-Value="newVendor.PostalCode" Name="PostalCode" Placeholder="Postal Code" Style="width:100%;" />
+        </div>
+    </RadzenCard>
+
+    <RadzenCard class="card-panel">
+        <div class="section-title">Banking Information</div>
+        <div class="section-caption">Enter banking details for payments</div>
+        <div class="form-grid">
+            <RadzenTextBox @bind-Value="newVendor.BankName" Name="BankName" Placeholder="Bank Name" Style="width:100%;" />
+            <RadzenTextBox @bind-Value="newVendor.AccountName" Name="AccountName" Placeholder="Account Name" Style="width:100%;" />
+            <RadzenTextBox @bind-Value="newVendor.AccountNumber" Name="AccountNumber" Placeholder="Bank Account Number" Style="width:100%;" />
+            <RadzenDropDown Data="@currencies" @bind-Value="newVendor.Currency" Name="Currency" Placeholder="Currency" Style="width:100%;" />
+            <RadzenDropDown Data="@paymentTerms" @bind-Value="newVendor.PaymentTerms" Name="PaymentTerms" Placeholder="Payment Terms" Style="width:100%;" />
+        </div>
+    </RadzenCard>
+
+    <RadzenCard class="card-panel">
+        <div class="section-title">Additional Information</div>
+        <div class="section-caption">Optional comments or notes</div>
+        <RadzenTextArea @bind-Value="newVendor.Comments" Name="Comments" Placeholder="Enter any additional information..." Rows="4" Style="width:100%;" />
+    </RadzenCard>
+
+    <div class="page-header" style="margin-top:1rem;">
+        <div class="pill">
+            <strong>Status</strong> Pending submission
+        </div>
+        <div class="actions">
+            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Secondary" Icon="close" Click="@(() => NavManager.NavigateTo("/vendor-master"))" />
+            <RadzenButton Text="Submit for Approval" Icon="check" ButtonStyle="ButtonStyle.Primary" Type="ButtonType.Submit" />
+        </div>
+    </div>
+</RadzenTemplateForm>
+
+@code {
+    private Vendor newVendor = new()
+    {
+        RegistrationDate = DateTime.UtcNow.Date,
+        Country = "USA",
+        Currency = "USD - US Dollar",
+        PaymentTerms = "Net 30",
+        Status = "Pending"
+    };
+
+    private readonly List<string> businessTypes = new()
+    {
+        "IT Services", "Office Supplies", "Manufacturing", "Logistics", "Consulting", "Finance", "Retail"
+    };
+
+    private readonly List<string> currencies = new()
+    {
+        "USD - US Dollar", "EUR - Euro", "IDR - Indonesian Rupiah", "SGD - Singapore Dollar"
+    };
+
+    private readonly List<string> paymentTerms = new()
+    {
+        "Net 30", "Net 45", "Net 60", "Due on Receipt"
+    };
+
+    private void HandleSubmit(Vendor _)
+    {
+        newVendor.Status = "Pending";
+        VendorSvc.AddVendor(newVendor);
+        NotificationService.Notify(NotificationSeverity.Success, "Vendor submitted", $"Vendor {newVendor.Name} submitted for approval.");
+        newVendor = new Vendor
+        {
+            RegistrationDate = DateTime.UtcNow.Date,
+            Country = "USA",
+            Currency = "USD - US Dollar",
+            PaymentTerms = "Net 30",
+            Status = "Pending"
+        };
+        NavManager.NavigateTo("/vendor-master");
+    }
+}

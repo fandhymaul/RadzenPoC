@@ -1,0 +1,42 @@
+.rz-panel-menu {
+    border: 1px solid var(--shell-border);
+    background: rgba(15, 25, 41, 0.85);
+    border-radius: 14px;
+    padding: 0.5rem;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+}
+
+.rz-panelmenu .rz-state-active {
+    background: linear-gradient(90deg, rgba(14, 165, 233, 0.2), rgba(56, 189, 248, 0.08));
+    border-radius: 10px;
+}
+
+.rz-panelmenu .rz-navigation-item {
+    border-radius: 10px;
+    margin: 0.1rem 0.15rem;
+}
+
+.rz-panelmenu .rz-navigation-item:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.rz-panelmenu .rz-navigation-item .rz-panelmenu-item-text {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.menu-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.1rem;
+}
+
+.menu-section-title {
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    color: var(--text-secondary);
+    font-weight: 700;
+    padding-left: 0.35rem;
+    text-transform: uppercase;
+}

@@ -1,0 +1,157 @@
+@page "/vendor-master/{id:int}"
+@using poc.Models
+@using poc.Services
+@using Radzen
+@using Radzen.Blazor
+
+@inject VendorService VendorSvc
+@inject NavigationManager NavManager
+
+<PageTitle>Vendor Details</PageTitle>
+
+@if (vendor is null)
+{
+    <RadzenCard class="card-panel">
+        <div class="section-title">Vendor not found</div>
+        <RadzenButton Text="Back to list" Icon="arrow_back" Link="/vendor-master" ButtonStyle="ButtonStyle.Secondary" />
+    </RadzenCard>
+}
+else
+{
+    <div class="page-header">
+        <div>
+            <div class="page-title">Vendor Details</div>
+            <div class="page-subtitle">Complete information for @vendor.Name</div>
+        </div>
+        <div class="actions">
+            <RadzenButton Text="Modify" Icon="edit" ButtonStyle="ButtonStyle.Secondary" Click="@(() => NavManager.NavigateTo("/vendor-master/modify"))" />
+            <RadzenButton Text="Back" Icon="arrow_back" ButtonStyle="ButtonStyle.Primary" Click="@(() => NavManager.NavigateTo("/vendor-master"))" />
+        </div>
+    </div>
+
+    <RadzenCard class="card-panel">
+        <div class="two-column">
+            <div>
+                <div class="section-title">Vendor Code</div>
+                <div class="section-caption">@vendor.VendorCode</div>
+            </div>
+            <div>
+                <div class="section-title">Status</div>
+                <div class="section-caption">
+                    <span class="@GetStatusChipClass(vendor.Status)">@vendor.Status</span>
+                </div>
+            </div>
+        </div>
+    </RadzenCard>
+
+    <RadzenCard class="card-panel">
+        <div class="section-title">Basic Information</div>
+        <div class="two-column">
+            <div>
+                <div class="section-caption">Vendor Name</div>
+                <div>@vendor.Name</div>
+            </div>
+            <div>
+                <div class="section-caption">Business Type</div>
+                <div>@vendor.BusinessType</div>
+            </div>
+            <div>
+                <div class="section-caption">Tax ID</div>
+                <div>@vendor.TaxId</div>
+            </div>
+            <div>
+                <div class="section-caption">Registration Date</div>
+                <div>@vendor.RegistrationDate.ToString("yyyy-MM-dd")</div>
+            </div>
+        </div>
+    </RadzenCard>
+
+    <RadzenCard class="card-panel">
+        <div class="section-title">Contact Information</div>
+        <div class="two-column">
+            <div>
+                <div class="section-caption">Email</div>
+                <div>@vendor.Email</div>
+            </div>
+            <div>
+                <div class="section-caption">Phone</div>
+                <div>@vendor.PhoneNumber</div>
+            </div>
+            <div>
+                <div class="section-caption">Address</div>
+                <div>@vendor.Address</div>
+            </div>
+            <div>
+                <div class="section-caption">City</div>
+                <div>@vendor.City</div>
+            </div>
+            <div>
+                <div class="section-caption">Country</div>
+                <div>@vendor.Country</div>
+            </div>
+            <div>
+                <div class="section-caption">Postal Code</div>
+                <div>@vendor.PostalCode</div>
+            </div>
+        </div>
+    </RadzenCard>
+
+    <RadzenCard class="card-panel">
+        <div class="section-title">Banking Information</div>
+        <div class="two-column">
+            <div>
+                <div class="section-caption">Bank Name</div>
+                <div>@vendor.BankName</div>
+            </div>
+            <div>
+                <div class="section-caption">Account Name</div>
+                <div>@vendor.AccountName</div>
+            </div>
+            <div>
+                <div class="section-caption">Bank Account Number</div>
+                <div>@vendor.AccountNumber</div>
+            </div>
+            <div>
+                <div class="section-caption">Currency</div>
+                <div>@vendor.Currency</div>
+            </div>
+            <div>
+                <div class="section-caption">Payment Terms</div>
+                <div>@vendor.PaymentTerms</div>
+            </div>
+        </div>
+    </RadzenCard>
+
+    @if (!string.IsNullOrWhiteSpace(vendor.Comments))
+    {
+        <RadzenCard class="card-panel">
+            <div class="section-title">Additional Information</div>
+            <div>@vendor.Comments</div>
+        </RadzenCard>
+    }
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private Vendor? vendor;
+
+    protected override void OnParametersSet()
+    {
+        vendor = VendorSvc.GetVendor(Id);
+        if (vendor is null)
+        {
+            NavManager.NavigateTo("/vendor-master");
+        }
+    }
+
+    private string GetStatusChipClass(string status)
+    {
+        return status?.ToLowerInvariant() switch
+        {
+            "active" => "chip success",
+            "inactive" => "chip danger",
+            _ => "chip warning"
+        };
+    }
+}

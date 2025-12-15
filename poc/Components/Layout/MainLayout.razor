@@ -1,0 +1,46 @@
+@inherits LayoutComponentBase
+
+<RadzenDialog />
+<RadzenNotification />
+<RadzenContextMenu />
+
+<div class="layout-shell">
+    <aside class="shell-sidebar">
+        <div class="brand">
+            <div class="brand-icon">
+                <RadzenIcon Icon="storefront" />
+            </div>
+            <div>
+                <div class="brand-title">Vendor Management</div>
+                <div class="brand-subtitle">Proof of Concept</div>
+            </div>
+        </div>
+        <NavMenu />
+    </aside>
+
+    <section class="shell-main">
+        <header class="shell-header">
+            <div class="header-left">
+                <div class="header-title">Vendor Management System</div>
+                <div class="header-subtitle">Radzen + .NET 10</div>
+            </div>
+            <div class="header-right">
+                <div class="user-chip">
+                    <div class="user-name">John Doe</div>
+                    <div class="user-role">PIC Unit Department</div>
+                </div>
+                <div class="user-avatar">JD</div>
+            </div>
+        </header>
+
+        <main class="shell-content">
+            @Body
+        </main>
+    </section>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">x</span>
+</div>

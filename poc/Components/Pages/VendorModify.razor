@@ -1,0 +1,161 @@
+@page "/vendor-master/modify"
+@using poc.Models
+@using poc.Services
+@using Radzen
+@using Radzen.Blazor
+
+@inject VendorService VendorSvc
+@inject NotificationService NotificationService
+
+<PageTitle>Modify Vendor Data</PageTitle>
+
+<div class="page-header">
+    <div>
+        <div class="page-title">Modify Vendor Data</div>
+        <div class="page-subtitle">Update existing vendor information</div>
+    </div>
+    <div class="actions">
+        <RadzenButton Text="Check Existing Vendors" Icon="fact_check" ButtonStyle="ButtonStyle.Secondary" Link="/vendor-master" />
+    </div>
+</div>
+
+<RadzenCard class="card-panel">
+    <div class="section-title">Select Vendor</div>
+    <div class="section-caption">Search and select a vendor to modify</div>
+    <div class="search-box">
+        <RadzenIcon Icon="search" class="search-icon" />
+        <RadzenDropDown Data="@vendors" TItem="Vendor" TValue="int?" TextProperty="DisplayLabel" ValueProperty="Id" @bind-Value="SelectedVendorId" Placeholder="Search by vendor name or code..." Style="width:100%;" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" FilterOperator="StringFilterOperator.Contains" />
+    </div>
+</RadzenCard>
+
+@if (editableVendor is not null)
+{
+    <RadzenTemplateForm TItem="Vendor" Data="@editableVendor" Submit="@SaveVendor">
+        <RadzenCard class="card-panel" Style="margin-top:1rem;">
+            <div class="section-title">Basic Information</div>
+            <div class="section-caption">Edit the vendor's basic details</div>
+            <div class="form-grid">
+                <RadzenTextBox @bind-Value="editableVendor.VendorCode" Name="VendorCode" Placeholder="Vendor Code" Style="width:100%;" />
+                <RadzenDropDown Data="@statusOptions" @bind-Value="editableVendor.Status" Name="Status" Placeholder="Status" Style="width:100%;" />
+                <RadzenTextBox @bind-Value="editableVendor.Name" Name="Name" Placeholder="Vendor Name" Style="width:100%;" />
+                <RadzenDropDown Data="@businessTypes" @bind-Value="editableVendor.BusinessType" Name="BusinessType" Placeholder="Business Type" Style="width:100%;" />
+                <RadzenTextBox @bind-Value="editableVendor.TaxId" Name="TaxId" Placeholder="Tax ID" Style="width:100%;" />
+                <RadzenDatePicker @bind-Value="editableVendor.RegistrationDate" Name="RegistrationDate" Style="width:100%;" />
+            </div>
+        </RadzenCard>
+
+        <RadzenCard class="card-panel">
+            <div class="section-title">Contact Information</div>
+            <div class="section-caption">Edit contact details for the vendor</div>
+            <div class="form-grid">
+                <RadzenTextBox @bind-Value="editableVendor.Email" Name="Email" Placeholder="Email" Style="width:100%;" />
+                <RadzenTextBox @bind-Value="editableVendor.PhoneNumber" Name="PhoneNumber" Placeholder="Phone" Style="width:100%;" />
+                <RadzenTextBox @bind-Value="editableVendor.Address" Name="Address" Placeholder="Address" Style="width:100%;" />
+                <RadzenTextBox @bind-Value="editableVendor.City" Name="City" Placeholder="City" Style="width:100%;" />
+                <RadzenTextBox @bind-Value="editableVendor.Country" Name="Country" Placeholder="Country" Style="width:100%;" />
+                <RadzenTextBox @bind-Value="editableVendor.PostalCode" Name="PostalCode" Placeholder="Postal Code" Style="width:100%;" />
+            </div>
+        </RadzenCard>
+
+        <RadzenCard class="card-panel">
+            <div class="section-title">Banking Information</div>
+            <div class="section-caption">Edit banking details for payments</div>
+            <div class="form-grid">
+                <RadzenTextBox @bind-Value="editableVendor.BankName" Name="BankName" Placeholder="Bank Name" Style="width:100%;" />
+                <RadzenTextBox @bind-Value="editableVendor.AccountName" Name="AccountName" Placeholder="Account Name" Style="width:100%;" />
+                <RadzenTextBox @bind-Value="editableVendor.AccountNumber" Name="AccountNumber" Placeholder="Bank Account Number" Style="width:100%;" />
+                <RadzenDropDown Data="@currencies" @bind-Value="editableVendor.Currency" Name="Currency" Placeholder="Currency" Style="width:100%;" />
+                <RadzenDropDown Data="@paymentTerms" @bind-Value="editableVendor.PaymentTerms" Name="PaymentTerms" Placeholder="Payment Terms" Style="width:100%;" />
+            </div>
+        </RadzenCard>
+
+        <RadzenCard class="card-panel">
+            <div class="section-title">Additional Information</div>
+            <div class="section-caption">Optional comments or notes</div>
+            <RadzenTextArea @bind-Value="editableVendor.Comments" Name="Comments" Rows="4" Style="width:100%;" />
+        </RadzenCard>
+
+        <div class="page-header" style="margin-top:1rem;">
+            <div class="pill">
+                <strong>Vendor</strong> @editableVendor.DisplayLabel
+            </div>
+            <div class="actions">
+                <RadzenButton Text="Save changes" Icon="save" ButtonStyle="ButtonStyle.Primary" Type="ButtonType.Submit" />
+            </div>
+        </div>
+    </RadzenTemplateForm>
+}
+
+@code {
+    private IEnumerable<Vendor> vendors = Enumerable.Empty<Vendor>();
+    private Vendor? editableVendor;
+    private int? selectedVendorId;
+    private int? SelectedVendorId
+    {
+        get => selectedVendorId;
+        set
+        {
+            selectedVendorId = value;
+            HandleVendorChanged(value);
+        }
+    }
+
+    private readonly List<string> statusOptions = new() { "Active", "Inactive", "Pending" };
+    private readonly List<string> businessTypes = new() { "IT Services", "Office Supplies", "Manufacturing", "Logistics", "Consulting", "Finance", "Retail" };
+    private readonly List<string> currencies = new() { "USD - US Dollar", "EUR - Euro", "IDR - Indonesian Rupiah", "SGD - Singapore Dollar" };
+    private readonly List<string> paymentTerms = new() { "Net 30", "Net 45", "Net 60", "Due on Receipt" };
+
+    protected override void OnInitialized()
+    {
+        vendors = VendorSvc.GetVendors();
+    }
+
+    private void HandleVendorChanged(int? value)
+    {
+        if (value is int id)
+        {
+            selectedVendorId = id;
+            var selected = VendorSvc.GetVendor(id);
+            if (selected != null)
+            {
+                editableVendor = CloneVendor(selected);
+            }
+        }
+    }
+
+    private void SaveVendor(Vendor vendor)
+    {
+        if (vendor is null)
+        {
+            return;
+        }
+
+        editableVendor = vendor;
+        VendorSvc.UpdateVendor(editableVendor);
+        vendors = VendorSvc.GetVendors();
+        NotificationService.Notify(NotificationSeverity.Success, "Vendor updated", $"{editableVendor.DisplayLabel} saved successfully.");
+    }
+
+    private static Vendor CloneVendor(Vendor vendor) => new()
+    {
+        Id = vendor.Id,
+        VendorCode = vendor.VendorCode,
+        Status = vendor.Status,
+        Name = vendor.Name,
+        BusinessType = vendor.BusinessType,
+        TaxId = vendor.TaxId,
+        RegistrationDate = vendor.RegistrationDate,
+        Address = vendor.Address,
+        City = vendor.City,
+        Country = vendor.Country,
+        PostalCode = vendor.PostalCode,
+        PhoneNumber = vendor.PhoneNumber,
+        Email = vendor.Email,
+        BankName = vendor.BankName,
+        AccountName = vendor.AccountName,
+        AccountNumber = vendor.AccountNumber,
+        Currency = vendor.Currency,
+        PaymentTerms = vendor.PaymentTerms,
+        Comments = vendor.Comments
+    };
+}
